@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра Лабиринт</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+
+        
+        <!-- Индикатор текущей позиции - теперь основная информация -->
+        <div class="position-indicator-main">
+            <h2>Текущая комната: <span id="current-position">Комната 1</span></h2>
+        </div>
+        
+        <!-- Контейнер для изображения комнаты и кнопок перемещения -->
+        <div class="controls-container">
+            <div class="room-container">
+                <img src="placeholder_room.jpg" alt="Комната" id="room-image" class="room-image">
+            </div>
+            <!-- Кнопки для перемещения -->
+            <button id="move-up" class="move-button up-btn">↑</button>
+            <button id="move-down" class="move-button down-btn">↓</button>
+            <button id="move-left" class="move-button left-btn">←</button>
+            <button id="move-right" class="move-button right-btn">→</button>
+        </div>
+        
+        <!-- Инвентарь в левом нижнем углу -->
+        <div class="inventory-container corner-inventory">
+            <h3>Инвентарь</h3>
+            <div class="inventory-slots">
+                <div class="inventory-slot" id="slot-0"></div>
+                <div class="inventory-slot" id="slot-1"></div>
+                <div class="inventory-slot" id="slot-2"></div>
+            </div>
+        </div>
+        
+        <!-- Модальное окно для заданий -->
+        <div id="task-modal" class="modal">
+            <div class="modal-content">
+                <h2>Задание</h2>
+                <div id="task-text" class="task-text">Выполните задание в реальной жизни!</div>
+                <div class="task-buttons">
+                    <button id="task-success" class="btn-success">Получилось</button>
+                    <button id="task-fail" class="btn-fail">Не получилось</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
