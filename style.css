@@ -207,6 +207,63 @@ h1 {
     justify-content: space-between;
 }
 
+/* Стили для модального окна выбора */
+.selection-modal {
+    z-index: 1001; /* чуть выше обычного модального окна */
+}
+
+.selection-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+}
+
+.selection-group {
+    margin: 20px 0;
+}
+
+.selection-group h3 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+    font-size: 18px;
+}
+
+.selection-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.selection-btn {
+    padding: 12px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #3498db;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    min-width: 200px;
+}
+
+.selection-btn:hover {
+    background-color: #2980b9;
+}
+
+.selection-btn.selected {
+    background-color: #e74c3c;
+}
+
+.selection-btn.selected:hover {
+    background-color: #c0392b;
+}
+
 .task-text {
     margin: 10px 0;
     white-space: pre-line; /* Чтобы отображались переносы строк */
@@ -227,6 +284,48 @@ h1 {
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+}
+
+.arithmetic-chain-interface {
+    margin: 15px 0;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.player-count-input {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.player-count-input label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.player-count-input input {
+    width: 60px;
+    padding: 5px;
+    margin: 0 10px;
+    text-align: center;
+}
+
+.arithmetic-chain-display {
+    text-align: center;
+}
+
+.operation-display {
+    font-size: 20px;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+.current-result {
+    font-size: 18px;
+    margin: 10px 0;
+    min-height: 25px;
 }
 
 .btn-success {

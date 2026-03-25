@@ -3,16 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Игра Лабиринт</title>
+    <title>Лабиринт</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="game-container">
-
+        <!-- Начальное окно выбора -->
+        <div id="selection-modal" class="modal selection-modal">
+            <div class="modal-content selection-content">
+                <h2>Выберите параметры игры</h2>
+                
+                <div class="selection-group">
+                    <h3>Формат:</h3>
+                    <div class="selection-buttons">
+                        <button id="in-person-btn" class="selection-btn">Очное отделение</button>
+                        <button id="virtual-class-btn" class="selection-btn">Виртуальный класс</button>
+                    </div>
+                </div>
+                
+                <div class="selection-group">
+                    <h3>Группа:</h3>
+                    <div class="selection-buttons">
+                        <button id="group-j3j4a1p3p5-btn" class="selection-btn">J3, J4, А1, P3, P5</button>
+                        <button id="group-m1-btn" class="selection-btn">M1+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- <h1>Игра Лабиринт</h1> -->
         
         <!-- Индикатор текущей позиции - теперь основная информация -->
         <div class="position-indicator-main">
-            <h2>Текущая комната: <span id="current-position">Комната 1</span></h2>
+            <h2><span id="current-position">Комната 1</span></h2>
         </div>
         
         <!-- Контейнер для изображения комнаты и кнопок перемещения -->
@@ -42,6 +65,19 @@
             <div class="modal-content">
                 <h2>Задание</h2>
                 <div id="task-text" class="task-text">Выполните задание в реальной жизни!</div>
+                <div id="arithmetic-chain-interface" class="arithmetic-chain-interface" style="display: none;">
+                    <div id="player-count-input" class="player-count-input">
+                        <label for="player-count">Введите количество игроков:</label>
+                        <input type="number" id="player-count" min="1" value="1">
+                        <button id="start-arithmetic-chain" class="btn-success">Начать</button>
+                    </div>
+                    <div id="arithmetic-chain-display" class="arithmetic-chain-display" style="display: none;">
+                        <div id="operation-display" class="operation-display"></div>
+                        <div id="current-result" class="current-result" style="display: none;"></div>
+                        <button id="next-operation" class="btn-success">Следующая операция</button>
+                        <button id="check-answer" class="btn-success" style="display: none;">Проверить ответ</button>
+                    </div>
+                </div>
                 <div class="task-buttons">
                     <button id="task-success" class="btn-success">Получилось</button>
                     <button id="task-fail" class="btn-fail">Не получилось</button>
