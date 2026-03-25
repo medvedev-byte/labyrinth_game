@@ -258,6 +258,8 @@ class LabyrinthGame {
         // Инициализируем параметры игры
         this.inPerson = null; // true для очного, false для виртуального
         this.group = null; // 'j3j4a1p3p5' или 'm1'
+        this.timerMinutes = 40; // по умолчанию 40 минут
+        this.timerInterval = null;
         this.completedOneTimeTasks = []; // список выполненных одноразовых заданий
         
         // Показываем окно выбора при загрузке
@@ -293,6 +295,19 @@ class LabyrinthGame {
             this.markSelectedButton('group-m1-btn', 'group-j3j4a1p3p5-btn');
             this.checkAndEnableStart();
         });
+        
+        // Обработчик для изменения значения таймера
+        const timerInput = document.getElementById('timer-minutes');
+        timerInput.addEventListener('change', () => {
+            this.timerMinutes = parseInt(timerInput.value);
+            if (isNaN(this.timerMinutes) || this.timerMinutes < 1) {
+                this.timerMinutes = 1;
+                timerInput.value = 1;
+            } else if (this.timerMinutes > 120) {
+                this.timerMinutes = 120;
+                timerInput.value = 120;
+            }
+        });
     }
     
     markSelectedButton(selectedId, deselectedId) {
@@ -316,6 +331,14 @@ class LabyrinthGame {
         // Закрываем модальное окно выбора
         const selectionModal = document.getElementById('selection-modal');
         selectionModal.style.display = 'none';
+        
+        // Показываем таймер
+        const timerDisplay = document.getElementById('timer-display');
+        timerDisplay.style.display = 'block';
+        this.updateTimerDisplay();
+        
+        // Запускаем таймер
+        this.startTimer();
         
         // Начинаем игру с выбранной конфигурацией
         this.currentPosition = { x: 1, y: 2 };
@@ -385,6 +408,56 @@ class LabyrinthGame {
                 }
             }
         }
+    }
+    
+    startTimer() {
+        // Останавливаем предыдущий таймер, если он был
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+        }
+        
+        // Устанавливаем начальное время в миллисекундах (преобразуем минуты в миллисекунды)
+        this.timeLeft = this.timerMinutes * 60 * 1000; // в миллисекундах
+        
+        // Запускаем таймер
+        this.timerInterval = setInterval(() => {
+            this.timeLeft -= 1000; // уменьшаем время на 1 секунду
+            
+            // Обновляем отображение таймера
+            this.updateTimerDisplay();
+            
+            // Проверяем, истекло ли время
+            if (this.timeLeft <= 0) {
+                this.endGameByTimer(); // завершаем игру по таймеру
+            }
+        }, 1000); // обновляем каждую секунду
+    }
+    
+    updateTimerDisplay() {
+        // Преобразуем миллисекунды в минуты и секунды
+        const totalSeconds = Math.ceil(this.timeLeft / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        
+        // Форматируем время в виде MM:SS
+        const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Обновляем отображение времени
+        const timeLeftElement = document.getElementById('time-left');
+        if (timeLeftElement) {
+            timeLeftElement.textContent = formattedTime;
+        }
+    }
+    
+    endGameByTimer() {
+        // Останавливаем таймер
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+        
+        // Показываем сообщение о том, что время истекло
+        alert('К сожалению, вы не успели найти выход из лабиринта!');
     }
     
     initializeElements() {
