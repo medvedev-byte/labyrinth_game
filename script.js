@@ -396,7 +396,7 @@ class LabyrinthGame {
         this.shuffleArray(allTransitions);
         
         // Вычисляем количество переходов с одноразовыми заданиями (примерно 1/3)
-        const oneTimeCount = Math.floor(allTransitions.length / 3);
+        const oneTimeCount = Math.floor(allTransitions.length * (2 / 3));
         
         // Выбираем первые oneTimeCount переходов для одноразовых заданий
         const oneTimeTransitions = allTransitions.slice(0, oneTimeCount);
