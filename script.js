@@ -7,7 +7,7 @@ const taskDatabase = [
         inPerson: true,
         virtual: true,
         groups: ['j3j4a1p3p5', 'm1'],
-        repeatable: true,
+        repeatable: true,  // Может встречаться несколько раз
         requirements: null
     },
     {
@@ -16,7 +16,7 @@ const taskDatabase = [
         inPerson: true,
         virtual: true,
         groups: ['m1'],
-        repeatable: true,
+        repeatable: true,  // Может встречаться несколько раз
         requirements: null
     },
     {
@@ -25,7 +25,7 @@ const taskDatabase = [
         inPerson: true,
         virtual: true,
         groups: ['j3j4a1p3p5'],
-        repeatable: true,
+        repeatable: true,  // Может встречаться несколько раз
         requirements: null
     },
 
@@ -35,7 +35,7 @@ const taskDatabase = [
         inPerson: false,
         virtual: true,
         groups: ['j3j4a1p3p5', 'm1'],
-        repeatable: true,
+        repeatable: true,  // Может встречаться несколько раз
         requirements: null
     },
 
@@ -45,7 +45,7 @@ const taskDatabase = [
         inPerson: false,
         virtual: true,
         groups: ['j3j4a1p3p5', 'm1'],
-        repeatable: true,
+        repeatable: true,  // Может встречаться несколько раз
         requirements: null
     },
 
@@ -55,7 +55,7 @@ const taskDatabase = [
         inPerson: false,
         virtual: true,
         groups: ['j3j4a1p3p5', 'm1'],
-        repeatable: true,
+        repeatable: true,  // Может встречаться несколько раз
         requirements: null
     },
     {
@@ -64,7 +64,7 @@ const taskDatabase = [
         inPerson: true,
         virtual: true,
         groups: ['j3j4a1p3p5', 'm1'],
-        repeatable: false,  // Changed to false to make it unique
+        repeatable: false,  // Уникальное задание - встречается только один раз
         requirements: null
     },
     {
@@ -73,7 +73,7 @@ const taskDatabase = [
         inPerson: false,  // Только для виртуального класса
         virtual: true,
         groups: ['j3j4a1p3p5', 'm1'],  // Для всех групп
-        repeatable: true,
+        repeatable: true,  // Может встречаться несколько раз (разные картинки)
         requirements: null
     }
 ];
@@ -279,7 +279,7 @@ class LabyrinthGame {
         this.timerInterval = null;
         this.completedOneTimeTasks = []; // список выполненных одноразовых заданий
         this.availableDrawingImages = []; // список доступных изображений для рисования
-        this.completedTransitions = {}; // объект для отслеживания выполненных переходов
+        this.completedTransitions = {}; // объект для отслеживания выполненных переходов (ключ: "x,y-direction")
         this.oneTimeTransitionTasks = []; // список переходов с одноразовыми заданиями
         
         // Показываем окно выбора при загрузке
@@ -376,18 +376,40 @@ class LabyrinthGame {
     }
 
     distributeTasksToTransitions() {
+        // Собираем все переходы, которые могут иметь задания
+        const allTransitions = [];
+        
+        for (const roomKey in labyrinthConfig.rooms) {
+            const room = labyrinthConfig.rooms[roomKey];
+            if (room.tasks) {
+                for (const direction in room.tasks) {
+                    const taskInfo = room.tasks[direction];
+                    // Пропускаем переходы, требующие ключи (они уже имеют механику)
+                    if (!taskInfo.requiredItem) {
+                        allTransitions.push({ roomKey, direction, taskInfo });
+                    }
+                }
+            }
+        }
+        
+        // Перемешиваем переходы случайным образом
+        this.shuffleArray(allTransitions);
+        
+        // Вычисляем количество переходов с одноразовыми заданиями (примерно 1/3)
+        const oneTimeCount = Math.floor(allTransitions.length / 3);
+        
+        // Выбираем первые oneTimeCount переходов для одноразовых заданий
+        const oneTimeTransitions = allTransitions.slice(0, oneTimeCount);
+        
+        // Сохраняем список одноразовых переходов
+        this.oneTimeTransitionTasks = oneTimeTransitions.map(t => `${t.roomKey}-${t.direction}`);
+        
         // Для каждой комнаты и каждого перехода в ней распределяем задания
         for (const roomKey in labyrinthConfig.rooms) {
             const room = labyrinthConfig.rooms[roomKey];
             if (room.tasks) {
                 for (const direction in room.tasks) {
                     const taskInfo = room.tasks[direction];
-                    
-                    // Проверяем, нужно ли добавить задание для этого перехода
-                    // В текущей реализации все переходы, где есть tasks, могут иметь задания
-                    // Мы обновим taskInfo, чтобы он содержал ID задания из базы данных
-                    // Вместо генерации случайных заданий при каждом вызове, мы будем
-                    // распределять задания один раз при запуске игры
                     
                     // Получаем доступные задания, соответствующие текущим параметрам
                     const availableTasks = taskDatabase.filter(task => {
@@ -398,7 +420,6 @@ class LabyrinthGame {
                         const matchesGroup = task.groups.includes(this.group);
                         
                         // Для одноразовых заданий проверяем, не используется ли оно уже
-                        // (чтобы избежать дублирования одноразовых заданий)
                         const isNotUsed = task.repeatable || !this.usedOneTimeTasks || !this.usedOneTimeTasks.includes(task.id);
                         
                         return matchesFormat && matchesGroup && isNotUsed;
@@ -409,7 +430,7 @@ class LabyrinthGame {
                         const randomIndex = Math.floor(Math.random() * availableTasks.length);
                         const selectedTask = availableTasks[randomIndex];
                         
-                        // Если задание одноразовое, отмечаем его как использованное
+                        // Если задание одноразовое (уникальное), отмечаем его как использованное
                         if (!selectedTask.repeatable) {
                             if (!this.usedOneTimeTasks) {
                                 this.usedOneTimeTasks = [];
@@ -418,9 +439,16 @@ class LabyrinthGame {
                             
                             // Также обновляем структуру taskInfo, чтобы она содержала ID задания
                             taskInfo.taskId = selectedTask.id;
+                            taskInfo.isUniqueTask = true; // Помечаем как уникальное задание
                         } else {
                             // Для повторяющихся заданий также можем указать ID
                             taskInfo.taskId = selectedTask.id;
+                            
+                            // Проверяем, является ли этот переход одноразовым (1/3 всех переходов)
+                            const transitionKey = `${roomKey}-${direction}`;
+                            if (this.oneTimeTransitionTasks.includes(transitionKey)) {
+                                taskInfo.isOneTimeTransition = true; // Помечаем как одноразовый переход
+                            }
                         }
                     } else {
                         // Если нет подходящих заданий, можно оставить как есть или установить стандартное
@@ -428,6 +456,14 @@ class LabyrinthGame {
                     }
                 }
             }
+        }
+    }
+    
+    // Вспомогательная функция для перемешивания массива (алгоритм Фишера-Йетса)
+    shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
         }
     }
     
@@ -696,8 +732,29 @@ class LabyrinthGame {
             return;
         }
         
-        // Если переход требует выполнения задания
-        if (taskInfo) {
+        // Проверяем, нужно ли выполнять задание при этом переходе
+        // Задание не требуется, если:
+        // 1. Это уникальное задание (isUniqueTask), которое уже было выполнено
+        // 2. Это одноразовый переход (isOneTimeTransition), который уже был пройден
+        const transitionKey = `${this.currentPosition.x},${this.currentPosition.y}-${direction}`;
+        const isCompletedTransition = this.completedTransitions[transitionKey] === true;
+        
+        if (taskInfo && taskInfo.taskId) {
+            const task = taskDatabase.find(t => t.id === taskInfo.taskId);
+            
+            // Проверяем, является ли задание уникальным и уже выполненным
+            const isUniqueTaskCompleted = taskInfo.isUniqueTask && this.completedOneTimeTasks.includes(taskInfo.taskId);
+            
+            // Проверяем, является ли переход одноразовым и уже пройденным
+            const isOneTimeTransitionCompleted = taskInfo.isOneTimeTransition && isCompletedTransition;
+            
+            // Если задание уже выполнено (уникальное или одноразовый переход), пропускаем его
+            if (isUniqueTaskCompleted || isOneTimeTransitionCompleted) {
+                this.moveToDirection(direction);
+                return;
+            }
+            
+            // Иначе показываем модальное окно с заданием
             this.showTaskModal(direction);
         } else {
             // Прямой переход без задания
@@ -836,11 +893,18 @@ class LabyrinthGame {
         const room = this.getCurrentRoom();
         const taskInfo = room.tasks[this.pendingDirection];
         
-        // Если задание одноразовое, добавляем его ID в список выполненных заданий
+        // Если задание одноразовое (уникальное), добавляем его ID в список выполненных заданий
         if (taskInfo && taskInfo.taskId) {
             const task = taskDatabase.find(t => t.id === taskInfo.taskId);
             if (task && !task.repeatable && !this.completedOneTimeTasks.includes(taskInfo.taskId)) {
                 this.completedOneTimeTasks.push(taskInfo.taskId);
+            }
+            
+            // Если это одноразовый переход (1/3 всех переходов с повторяющимися заданиями),
+            // помечаем этот переход как выполненный
+            if (taskInfo.isOneTimeTransition) {
+                const transitionKey = `${this.currentPosition.x},${this.currentPosition.y}-${this.pendingDirection}`;
+                this.completedTransitions[transitionKey] = true;
             }
         }
         
