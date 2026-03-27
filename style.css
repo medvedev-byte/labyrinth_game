@@ -389,6 +389,84 @@ h1 {
     background-color: #d32f2f;
 }
 
+.btn-info {
+    background-color: #2196F3;
+    color: white;
+    padding: 15px 30px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 40px;
+}
+
+.btn-info:hover {
+    background-color: #1976D2;
+}
+
+.random-topic-area {
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.random-topic-display {
+    margin-bottom: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.drawing-task-area {
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-content {
+    position: relative;
+    width: 90%;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-image {
+    max-width: 100%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+#close-fullscreen {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: auto;
+    padding: 10px 20px;
+    z-index: 2001;
+}
+
 @media (max-width: 600px) {
     .room-container, .controls-container {
         width: 300px;

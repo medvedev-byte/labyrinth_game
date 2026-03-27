@@ -15,13 +15,22 @@ const taskDatabase = [
         text: 'Нужно по очереди называть термины на выбранную преподавателем тему. Повторяться нельзя, время на размышления у каждого — 5 секунд.',
         inPerson: true,
         virtual: true,
-        groups: ['j3j4a1p3p5', 'm1'],
+        groups: ['m1'],
+        repeatable: true,
+        requirements: null
+    },
+    {
+        id: 'task3',
+        text: 'Нужно по очереди называть термины на выбранную преподавателем тему. Повторяться нельзя, время на размышления у каждого — 5 секунд.',
+        inPerson: true,
+        virtual: true,
+        groups: ['j3j4a1p3p5'],
         repeatable: true,
         requirements: null
     },
 
     {
-        id: 'task3',
+        id: 'task4',
         text: 'Все участники конференции должны поставить одну и ту же реакцию в течение 20 секунд. Если хотя бы в какой-то момент есть разные реакции, начинаем заново. Всего 3 попытки.',
         inPerson: false,
         virtual: true,
@@ -31,7 +40,7 @@ const taskDatabase = [
     },
 
     {
-        id: 'task4',
+        id: 'task5',
         text: 'Преподаватель загадывает слово и пишет первую букву слова в чат. Через несколько секунд (на выбор преподавателя) пишет уже две буквы слова, и так далее. Необходимо написать загаднное слово раньше, чем оно соберётся целиком.',
         inPerson: false,
         virtual: true,
@@ -41,7 +50,7 @@ const taskDatabase = [
     },
 
     {
-        id: 'task5',
+        id: 'task6',
         text: 'Преподаватель загадывает предмет и начинает его рисовать, по одной линии за раз. Через несколько секунд (на выбор преподавателя) добавляется следующая линия, и так далее. Необходимо написать загаднное слово раньше, чем оно нарисуется целиком.',
         inPerson: false,
         virtual: true,
@@ -49,13 +58,21 @@ const taskDatabase = [
         repeatable: true,
         requirements: null
     },
-
     {
         id: 'arithmetic-chain-task',
         text: 'Арифметическая цепочка: сначала введите количество игроков, затем по очереди каждый игрок выполняет одну операцию в арифметическом выражении.',
         inPerson: true,
         virtual: true,
         groups: ['j3j4a1p3p5', 'm1'],
+        repeatable: false,  // Changed to false to make it unique
+        requirements: null
+    },
+    {
+        id: 'finish-drawing-task',
+        text: 'Дорисуйте изображение, которое появится на экране.',
+        inPerson: false,  // Только для виртуального класса
+        virtual: true,
+        groups: ['j3j4a1p3p5', 'm1'],  // Для всех групп
         repeatable: true,
         requirements: null
     }
@@ -261,6 +278,9 @@ class LabyrinthGame {
         this.timerMinutes = 40; // по умолчанию 40 минут
         this.timerInterval = null;
         this.completedOneTimeTasks = []; // список выполненных одноразовых заданий
+        this.availableDrawingImages = []; // список доступных изображений для рисования
+        this.completedTransitions = {}; // объект для отслеживания выполненных переходов
+        this.oneTimeTransitionTasks = []; // список переходов с одноразовыми заданиями
         
         // Показываем окно выбора при загрузке
         this.showSelectionModal();
@@ -352,6 +372,7 @@ class LabyrinthGame {
         this.initializeElements();
         this.updateDisplay();
         this.setupEventListeners();
+        this.initializeDrawingImages(); // Инициализируем список доступных изображений для рисования
     }
 
     distributeTasksToTransitions() {
@@ -473,6 +494,8 @@ class LabyrinthGame {
         this.taskText = document.getElementById('task-text');
         this.taskSuccessBtn = document.getElementById('task-success');
         this.taskFailBtn = document.getElementById('task-fail');
+        this.getRandomTopicBtn = document.getElementById('get-random-topic');
+        this.randomTopicDisplay = document.getElementById('random-topic-display');
         
         // Элементы интерфейса арифметической цепочки
         this.arithmeticChainInterface = document.getElementById('arithmetic-chain-interface');
@@ -491,6 +514,13 @@ class LabyrinthGame {
             document.getElementById('slot-1'),
             document.getElementById('slot-2')
         ];
+        
+        // Элементы для задачи рисования
+        this.drawingTaskArea = document.getElementById('drawing-task-area');
+        this.showDrawingPictureBtn = document.getElementById('show-drawing-picture');
+        this.drawingFullscreenOverlay = document.getElementById('drawing-fullscreen-overlay');
+        this.drawingFullscreenImage = document.getElementById('drawing-fullscreen-image');
+        this.closeFullscreenBtn = document.getElementById('close-fullscreen');
     }
     
     setupEventListeners() {
@@ -508,6 +538,11 @@ class LabyrinthGame {
         
         this.taskFailBtn.addEventListener('click', () => {
             this.handleTaskResult(false);
+        });
+        
+        // Обработчик для кнопки получения случайной темы
+        this.getRandomTopicBtn.addEventListener('click', () => {
+            this.showRandomTopic();
         });
         
         // Закрытие модального окна при клике вне его
@@ -529,6 +564,96 @@ class LabyrinthGame {
         this.checkAnswerBtn.addEventListener('click', () => {
             this.checkArithmeticAnswer();
         });
+        
+        // Обработчики для задачи рисования
+        this.showDrawingPictureBtn.addEventListener('click', () => {
+            this.showRandomDrawingPicture();
+        });
+        
+        this.closeFullscreenBtn.addEventListener('click', () => {
+            this.closeFullscreenDrawing();
+        });
+    }
+    
+    initializeDrawingImages() {
+        // Инициализируем список доступных изображений для рисования
+        this.availableDrawingImages = [];
+        for (let i = 1; i <= 7; i++) {
+            this.availableDrawingImages.push(`finish_drawing${i}.jpg`);
+        }
+    }
+    
+    showRandomDrawingPicture() {
+        // Проверяем, остались ли доступные изображения
+        if (this.availableDrawingImages.length === 0) {
+            // Если все изображения использованы, переинициализируем список
+            this.initializeDrawingImages();
+        }
+        
+        // Выбираем случайный индекс
+        const randomIndex = Math.floor(Math.random() * this.availableDrawingImages.length);
+        // Получаем изображение по индексу
+        const randomImage = this.availableDrawingImages[randomIndex];
+        // Удаляем выбранное изображение из списка доступных
+        this.availableDrawingImages.splice(randomIndex, 1);
+        
+        // Отображаем изображение в полноэкранном режиме
+        this.drawingFullscreenImage.src = randomImage;
+        this.drawingFullscreenOverlay.style.display = 'flex';
+    }
+    
+    closeFullscreenDrawing() {
+        this.drawingFullscreenOverlay.style.display = 'none';
+    }
+    
+    showRandomTopic() {
+        // Проверяем, является ли текущее задание task2
+        const room = this.getCurrentRoom();
+        const taskInfo = room.tasks[this.pendingDirection];
+        const currentTask = taskDatabase.find(t => t.id === taskInfo.taskId);
+        
+        if (currentTask && (currentTask.id === 'task2' || currentTask.id === 'task3')) {
+            let topicsList = [];
+
+            if (currentTask.id === 'task2') {
+                topicsList = [
+                'Математика',
+                'Искусство',
+                'Спорт',
+                'География',
+                'Животные',
+                'Физика',
+                'Культура',
+                'Растения',
+                'Программирование'
+            ];
+            }
+            else if (currentTask.id === 'task3'){
+                topicsList = [
+                'Спорт',
+                'Животные',
+                'Транспорт',
+                'Страны',
+                'Одежда'
+            ];
+            }
+            
+            
+            // Выбираем случайную тему из списка
+            const randomIndex = Math.floor(Math.random() * topicsList.length);
+            const randomTopic = topicsList[randomIndex];
+            
+            // Отображаем тему на месте кнопки
+            this.getRandomTopicBtn.textContent = randomTopic;
+            // Уменьшим размер шрифта, чтобы текст поместился
+            this.getRandomTopicBtn.style.fontSize = '40px';
+        }
+    }
+    
+    resetRandomTopicButton() {
+        // Восстанавливаем первоначальный текст кнопки
+        this.getRandomTopicBtn.textContent = 'Получить случайную тему!';
+        this.getRandomTopicBtn.style.fontSize = '40px';
     }
     
     getCurrentRoom() {
@@ -615,6 +740,23 @@ class LabyrinthGame {
             this.hideArithmeticChainInterface();
         }
         
+        // Проверяем, является ли текущее задание task2, чтобы показать или скрыть кнопку получения случайной темы
+        const currentTask = taskDatabase.find(t => t.id === taskInfo.taskId);
+        if (currentTask && (currentTask.id === 'task2' || currentTask.id === 'task3')) {
+            this.getRandomTopicBtn.style.display = 'inline-block';
+        } else {
+            this.getRandomTopicBtn.style.display = 'none';
+            // Также скрываем отображение случайной темы, если это не task2
+            this.randomTopicDisplay.style.display = 'none';
+        }
+        
+        // Проверяем, является ли текущее задание задачей рисования
+        if (currentTask && currentTask.id === 'finish-drawing-task') {
+            this.drawingTaskArea.style.display = 'flex';
+        } else {
+            this.drawingTaskArea.style.display = 'none';
+        }
+        
         // Сохраняем направление для использования в обработчике результата
         this.pendingDirection = direction;
     }
@@ -685,6 +827,8 @@ class LabyrinthGame {
     
     handleTaskResult(success) {
         if (!success) {
+            // Восстанавливаем кнопку случайной темы при закрытии модального окна
+            this.resetRandomTopicButton();
             this.closeTaskModal();
             return;
         }
@@ -708,6 +852,8 @@ class LabyrinthGame {
         // Совершаем перемещение
         this.moveToDirection(this.pendingDirection);
         
+        // Восстанавливаем кнопку случайной темы после успешного выполнения задания
+        this.resetRandomTopicButton();
         this.closeTaskModal();
     }
     
@@ -901,7 +1047,13 @@ class LabyrinthGame {
         
         this.currentPlayer = 1;
         this.totalPlayers = playerCount;
-        this.operations = ['6*8', '+46', '+62', '-19', '+3', '/4', '+11', '*3', '-97', '+6', '-27', '*12', '-34', '/2', '+14', '-92', '/5', '+87', '-24', '*3'];
+        if (this.group === 'm1') {
+            this.operations = ['6*8', '+46', '+62', '-19', '+3', '/4', '+11', '*3', '-97', '+6', '-27', '*12', '-34', '/2', '+14', '-92', '/5', '+87', '-24', '*3', '-48', '-63', '+19', '/4', '+17', '/9', '*14', '+74', '-31', '-96'];
+        }
+        else {
+            this.operations = ['2*8', '+4', '-17', '+30', '+7', '/10', '+11', '-8', '-3', '+6', '*8', '/4', '-6', '/2', '+14', '-2', '+9', '/7', '+29', '*3', '+2', '-6', '+10', '-5', '/2', '/5', '*3', '+23', '-31', '-18'];
+        }
+        
         this.currentIndex = 0;
         this.currentResultValue = 0;
         // Рассчитываем правильный результат заранее только до той операции, которая соответствует количеству игроков

@@ -77,6 +77,7 @@
         <div id="task-modal" class="modal">
             <div class="modal-content">
                 <h2>Задание</h2>
+                <div id="random-topic-display" class="random-topic-display" style="display: none; margin-bottom: 15px; font-size: 24px; font-weight: bold; color: #2c3e50;"></div>
                 <div id="task-text" class="task-text">Выполните задание в реальной жизни!</div>
                 <div id="arithmetic-chain-interface" class="arithmetic-chain-interface" style="display: none;">
                     <div id="player-count-input" class="player-count-input">
@@ -91,6 +92,18 @@
                         <button id="check-answer" class="btn-success" style="display: none;">Проверить ответ</button>
                     </div>
                 </div>
+                <div id="random-topic-area" class="random-topic-area">
+                    <div id="random-topic-display" class="random-topic-display" style="display: none; margin-bottom: 15px; font-size: 24px; font-weight: bold; color: #2c3e50;"></div>
+                    <button id="get-random-topic" class="btn-info">Получить случайную тему!</button>
+                </div>
+                <div id="drawing-task-area" class="drawing-task-area" style="display: none;">
+                    <button id="show-drawing-picture" class="btn-info">Показать картинку!</button>
+                    <div id="drawing-fullscreen-overlay" class="fullscreen-overlay" style="display: none;">
+                        <div class="fullscreen-content">
+                            <img id="drawing-fullscreen-image" src="" alt="Картинка для рисования" class="fullscreen-image">
+                            <button id="close-fullscreen" class="btn-fail">Закрыть</button>
+                        </div>
+                    </div>
                 <div class="task-buttons">
                     <button id="task-success" class="btn-success">Получилось</button>
                     <button id="task-fail" class="btn-fail">Не получилось</button>
