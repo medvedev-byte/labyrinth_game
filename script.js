@@ -45,17 +45,17 @@ const taskDatabase = [
         inPerson: false,
         virtual: true,
         groups: ['j3j4a1p3p5', 'm1'],
-        repeatable: true,  // Может встречаться несколько раз
+        repeatable: true,  
         requirements: null
     },
 
     {
         id: 'task6',
-        text: 'Преподаватель загадывает предмет и начинает его рисовать, по одной линии за раз. Через несколько секунд (на выбор преподавателя) добавляется следующая линия, и так далее. Необходимо написать загаднное слово раньше, чем оно нарисуется целиком.',
+        text: 'Преподаватель загадывает предмет и начинает его рисовать, по одной линии за раз. Через несколько секунд (на выбор преподавателя) добавляется следующая линия, и так далее. Необходимо написать загаданное слово раньше, чем оно нарисуется целиком.',
         inPerson: false,
         virtual: true,
         groups: ['j3j4a1p3p5', 'm1'],
-        repeatable: true,  // Может встречаться несколько раз
+        repeatable: true,  
         requirements: null
     },
     {
@@ -64,16 +64,16 @@ const taskDatabase = [
         inPerson: true,
         virtual: true,
         groups: ['j3j4a1p3p5', 'm1'],
-        repeatable: false,  // Уникальное задание - встречается только один раз
+        repeatable: false,  
         requirements: null
     },
     {
         id: 'finish-drawing-task',
         text: 'Дорисуйте изображение, которое появится на экране.',
-        inPerson: false,  // Только для виртуального класса
+        inPerson: false,  
         virtual: true,
-        groups: ['j3j4a1p3p5', 'm1'],  // Для всех групп
-        repeatable: true,  // Может встречаться несколько раз (разные картинки)
+        groups: ['j3j4a1p3p5', 'm1'],  
+        repeatable: true,  
         requirements: null
     }
 ];
