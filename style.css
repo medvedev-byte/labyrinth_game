@@ -316,6 +316,8 @@ h1 {
 .task-buttons {
     margin-top: 20px;
     font-size: 40px;
+    display: flex;
+    justify-content: center;
 }
 
 .btn-success, .btn-fail {
