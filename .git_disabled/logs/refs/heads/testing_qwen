@@ -1,7 +1,0 @@
-0000000000000000000000000000000000000000 e12fc84642a9749f9afbc5d73993ce098d01e7a6 Антон Медведев <Medvedev@mshp.ru> 1774610002 +0300	branch: Created from refs/remotes/origin/testing_qwen
-e12fc84642a9749f9afbc5d73993ce098d01e7a6 417fba47f71ba5122aac20dc43d61481bdeb9a28 Антон Медведев <Medvedev@mshp.ru> 1774610303 +0300	pull: Fast-forward
-417fba47f71ba5122aac20dc43d61481bdeb9a28 7531b4526858d0f69f1527e9a950a2d72b535df9 Антон Медведев <Medvedev@mshp.ru> 1774610632 +0300	pull: Fast-forward
-7531b4526858d0f69f1527e9a950a2d72b535df9 8c547ffa7387720ba6c3695ce3620a99505633e6 Антон Медведев <Medvedev@mshp.ru> 1774615266 +0300	commit: fixed no success buttons
-8c547ffa7387720ba6c3695ce3620a99505633e6 e43d875c90bfbbd900c3a57b7d81d2781739ba30 Антон Медведев <Medvedev@mshp.ru> 1774615412 +0300	commit: more one-time tasks now
-e43d875c90bfbbd900c3a57b7d81d2781739ba30 7633ea288d420c7317a8c9bc0d13fd3041564aef Антон Медведев <Medvedev@mshp.ru> 1774615904 +0300	commit: almost all passages have one-time tasks now
-7633ea288d420c7317a8c9bc0d13fd3041564aef eac2ea79b9c2c41b46e622a2ddba455960cdd61f Антон Медведев <Medvedev@mshp.ru> 1774628799 +0300	commit: fixed typo
