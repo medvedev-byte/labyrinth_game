@@ -135,7 +135,7 @@ const labyrinthConfig = {
             exits: ['down', 'left', 'right'],
             tasks: {
                 'down': { requiredItem: 'blue_key', rewardItem: null },  // в комнату 3 (2,1)
-                // 'left': { requiredItem: null, rewardItem: null },  // в комнату 1 (1,2)
+                'left': { requiredItem: null, rewardItem: null },  // в комнату 1 (1,2)
                 'right': { requiredItem: null, rewardItem: null }  // в комнату 8 (3,2)
             },
             name: 'Комната 4',
@@ -392,14 +392,14 @@ class LabyrinthGame {
             }
         }
         
-        // Перемешиваем переходы случайным образом
-        this.shuffleArray(allTransitions);
-        
-        // Вычисляем количество переходов с одноразовыми заданиями (примерно 1/3)
+        // Все переходы будут одноразовыми
         const oneTimeCount = allTransitions.length;
         
-        // Выбираем первые oneTimeCount переходов для одноразовых заданий
-        const oneTimeTransitions = allTransitions.slice(0, oneTimeCount);
+        // Перемешиваем переходы, чтобы случайным образом распределить задания
+        this.shuffleArray(allTransitions);
+        
+        // Все переходы становятся одноразовыми
+        const oneTimeTransitions = allTransitions;
         
         // Сохраняем список одноразовых переходов
         this.oneTimeTransitionTasks = oneTimeTransitions.map(t => `${t.roomKey}-${t.direction}`);
@@ -410,6 +410,15 @@ class LabyrinthGame {
             if (room.tasks) {
                 for (const direction in room.tasks) {
                     const taskInfo = room.tasks[direction];
+                    
+                    // Пропускаем переходы, требующие ключи (они уже имеют механику)
+                    if (taskInfo.requiredItem) {
+                        // Убедимся, что такие переходы не имеют назначенных заданий
+                        taskInfo.taskId = null;
+                        taskInfo.isOneTimeTransition = false;
+                        taskInfo.isUniqueTask = false;
+                        continue;
+                    }
                     
                     // Получаем доступные задания, соответствующие текущим параметрам
                     const availableTasks = taskDatabase.filter(task => {
@@ -444,7 +453,7 @@ class LabyrinthGame {
                             // Для повторяющихся заданий также можем указать ID
                             taskInfo.taskId = selectedTask.id;
                             
-                            // Проверяем, является ли этот переход одноразовым (1/3 всех переходов)
+                            // Проверяем, является ли этот переход одноразовым (все переходы без ключей теперь одноразовые)
                             const transitionKey = `${roomKey}-${direction}`;
                             if (this.oneTimeTransitionTasks.includes(transitionKey)) {
                                 taskInfo.isOneTimeTransition = true; // Помечаем как одноразовый переход
