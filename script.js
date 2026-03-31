@@ -41,7 +41,7 @@ const taskDatabase = [
 
     {
         id: 'task5',
-        text: 'Преподаватель загадывает слово и пишет первую букву слова в чат. Через несколько секунд (на выбор преподавателя) пишет уже две буквы слова, и так далее. Необходимо написать загаднное слово раньше, чем оно соберётся целиком.',
+        text: 'Преподаватель загадывает слово и пишет первую букву слова в чат. Через несколько секунд (на выбор преподавателя) пишет уже две буквы слова, и так далее. Необходимо написать загаданное слово раньше, чем оно соберётся целиком.',
         inPerson: false,
         virtual: true,
         groups: ['j3j4a1p3p5', 'm1'],
@@ -135,7 +135,7 @@ const labyrinthConfig = {
             exits: ['down', 'left', 'right'],
             tasks: {
                 'down': { requiredItem: 'blue_key', rewardItem: null },  // в комнату 3 (2,1)
-                'left': { requiredItem: null, rewardItem: null },  // в комнату 1 (1,2)
+                // 'left': { requiredItem: null, rewardItem: null },  // в комнату 1 (1,2)
                 'right': { requiredItem: null, rewardItem: null }  // в комнату 8 (3,2)
             },
             name: 'Комната 4',
@@ -736,7 +736,7 @@ class LabyrinthGame {
         // Задание не требуется, если:
         // 1. Это уникальное задание (isUniqueTask), которое уже было выполнено
         // 2. Это одноразовый переход (isOneTimeTransition), который уже был пройден
-        const transitionKey = `${this.currentPosition.x},${this.currentPosition.y}-${direction}`;
+        const transitionKey = this.getBidirectionalTransitionKey(this.currentPosition.x, this.currentPosition.y, direction);
         const isCompletedTransition = this.completedTransitions[transitionKey] === true;
         
         if (taskInfo && taskInfo.taskId) {
@@ -903,7 +903,7 @@ class LabyrinthGame {
             // Если это одноразовый переход (1/3 всех переходов с повторяющимися заданиями),
             // помечаем этот переход как выполненный
             if (taskInfo.isOneTimeTransition) {
-                const transitionKey = `${this.currentPosition.x},${this.currentPosition.y}-${this.pendingDirection}`;
+                const transitionKey = this.getBidirectionalTransitionKey(this.currentPosition.x, this.currentPosition.y, this.pendingDirection);
                 this.completedTransitions[transitionKey] = true;
             }
         }
@@ -1203,6 +1203,39 @@ class LabyrinthGame {
         } else {
             alert(`Неправильно! Ваш результат: ${this.currentResultValue}, правильный ответ: ${this.expectedResult}`);
             this.closeTaskModal(); // Закрываем модальное окно и считаем задание не выполненным
+        }
+    }
+    
+    getBidirectionalTransitionKey(fromX, fromY, direction) {
+        // Вычисляем координаты целевой комнаты
+        let toX = fromX;
+        let toY = fromY;
+        
+        switch (direction) {
+            case 'up':
+                toY += 1;
+                break;
+            case 'down':
+                toY -= 1;
+                break;
+            case 'left':
+                toX -= 1;
+                break;
+            case 'right':
+                toX += 1;
+                break;
+        }
+        
+        // Создаем ключ перехода в порядке возрастания координат, чтобы он был одинаковым
+        // независимо от направления движения
+        const fromCoord = `${fromX},${fromY}`;
+        const toCoord = `${toX},${toY}`;
+        
+        // Сравниваем строки координат и упорядочиваем их для создания консистентного ключа
+        if (fromCoord < toCoord) {
+            return `${fromCoord}-${toCoord}`;
+        } else {
+            return `${toCoord}-${fromCoord}`;
         }
     }
 }
