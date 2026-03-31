@@ -227,7 +227,7 @@ const labyrinthConfig = {
             exits: ['down', 'left'],
             tasks: {
                 'down': { requiredItem: 'yellow_key', rewardItem: null },  // в комнату 14 (4,1)
-                'left': { requiredItem: 'blue_key', rewardItem: null }  // в комнату 8 (3,2)
+                // 'left': { requiredItem: 'blue_key', rewardItem: null }  // в комнату 8 (3,2)
             },
             name: 'Комната 13',
             image: 'Room13.png',
@@ -378,6 +378,7 @@ class LabyrinthGame {
     distributeTasksToTransitions() {
         // Собираем все переходы, которые могут иметь задания
         const allTransitions = [];
+        const transitionRefs = []; // Сохраняем ссылки на объекты taskInfo для последующего обновления
         
         for (const roomKey in labyrinthConfig.rooms) {
             const room = labyrinthConfig.rooms[roomKey];
@@ -387,6 +388,7 @@ class LabyrinthGame {
                     // Пропускаем переходы, требующие ключи (они уже имеют механику)
                     if (!taskInfo.requiredItem) {
                         allTransitions.push({ roomKey, direction, taskInfo });
+                        transitionRefs.push({ roomKey, direction, taskInfo }); // Сохраняем ссылку
                     }
                 }
             }
@@ -397,6 +399,7 @@ class LabyrinthGame {
         
         // Перемешиваем переходы, чтобы случайным образом распределить задания
         this.shuffleArray(allTransitions);
+        this.shuffleArray(transitionRefs);
         
         // Все переходы становятся одноразовыми
         const oneTimeTransitions = allTransitions;
@@ -404,66 +407,74 @@ class LabyrinthGame {
         // Сохраняем список одноразовых переходов
         this.oneTimeTransitionTasks = oneTimeTransitions.map(t => `${t.roomKey}-${t.direction}`);
         
-        // Для каждой комнаты и каждого перехода в ней распределяем задания
-        for (const roomKey in labyrinthConfig.rooms) {
-            const room = labyrinthConfig.rooms[roomKey];
-            if (room.tasks) {
-                for (const direction in room.tasks) {
-                    const taskInfo = room.tasks[direction];
+        // Получаем доступные задания для текущего формата и группы
+        const availableTasks = taskDatabase.filter(task => {
+            // Проверяем, соответствует ли задание типу отделения
+            const matchesFormat = (this.inPerson && task.inPerson) || (!this.inPerson && task.virtual);
+            
+            // Проверяем, соответствует ли задание группе
+            const matchesGroup = task.groups.includes(this.group);
+            
+            return matchesFormat && matchesGroup;
+        });
+
+        // Сбросим использованные одноразовые задания
+        this.usedOneTimeTasks = [];
+
+        // Сначала распределим уникальные задания (те, у которых repeatable: false)
+        const uniqueTasks = availableTasks.filter(task => !task.repeatable);
+        const repeatableTasks = availableTasks.filter(task => task.repeatable);
+        
+        // Индекс для отслеживания, какие уникальные задания уже были использованы
+        let uniqueTaskIndex = 0;
+        let repeatableTaskIndex = 0;
+        
+        // Проходим по всем переходам и распределяем задания
+        for (let i = 0; i < transitionRefs.length; i++) {
+            const { roomKey, direction, taskInfo } = transitionRefs[i];
+            
+            // Пропускаем переходы, требующие ключи (они уже имеют механику)
+            if (taskInfo.requiredItem) {
+                // Убедимся, что такие переходы не имеют назначенных заданий
+                taskInfo.taskId = null;
+                taskInfo.isOneTimeTransition = false;
+                taskInfo.isUniqueTask = false;
+                continue;
+            }
+            
+            let selectedTask = null;
+            
+            // Если есть уникальные задания, которые еще не были использованы, используем их первыми
+            if (uniqueTaskIndex < uniqueTasks.length) {
+                selectedTask = uniqueTasks[uniqueTaskIndex];
+                uniqueTaskIndex++;
+            } else if (repeatableTasks.length > 0) {
+                // Если уникальные задания закончились, используем повторяющиеся задания
+                selectedTask = repeatableTasks[repeatableTaskIndex % repeatableTasks.length]; // Циклически используем повторяющиеся задания
+                repeatableTaskIndex++;
+            }
+            
+            if (selectedTask) {
+                // Если задание одноразовое (уникальное), отмечаем его как использованное
+                if (!selectedTask.repeatable) {
+                    this.usedOneTimeTasks.push(selectedTask.id);
                     
-                    // Пропускаем переходы, требующие ключи (они уже имеют механику)
-                    if (taskInfo.requiredItem) {
-                        // Убедимся, что такие переходы не имеют назначенных заданий
-                        taskInfo.taskId = null;
-                        taskInfo.isOneTimeTransition = false;
-                        taskInfo.isUniqueTask = false;
-                        continue;
-                    }
+                    // Также обновляем структуру taskInfo, чтобы она содержала ID задания
+                    taskInfo.taskId = selectedTask.id;
+                    taskInfo.isUniqueTask = true; // Помечаем как уникальное задание
+                } else {
+                    // Для повторяющихся заданий также указываем ID
+                    taskInfo.taskId = selectedTask.id;
                     
-                    // Получаем доступные задания, соответствующие текущим параметрам
-                    const availableTasks = taskDatabase.filter(task => {
-                        // Проверяем, соответствует ли задание типу отделения
-                        const matchesFormat = (this.inPerson && task.inPerson) || (!this.inPerson && task.virtual);
-                        
-                        // Проверяем, соответствует ли задание группе
-                        const matchesGroup = task.groups.includes(this.group);
-                        
-                        // Для одноразовых заданий проверяем, не используется ли оно уже
-                        const isNotUsed = task.repeatable || !this.usedOneTimeTasks || !this.usedOneTimeTasks.includes(task.id);
-                        
-                        return matchesFormat && matchesGroup && isNotUsed;
-                    });
-                    
-                    // Если есть доступные задания, выбираем одно случайное
-                    if (availableTasks.length > 0) {
-                        const randomIndex = Math.floor(Math.random() * availableTasks.length);
-                        const selectedTask = availableTasks[randomIndex];
-                        
-                        // Если задание одноразовое (уникальное), отмечаем его как использованное
-                        if (!selectedTask.repeatable) {
-                            if (!this.usedOneTimeTasks) {
-                                this.usedOneTimeTasks = [];
-                            }
-                            this.usedOneTimeTasks.push(selectedTask.id);
-                            
-                            // Также обновляем структуру taskInfo, чтобы она содержала ID задания
-                            taskInfo.taskId = selectedTask.id;
-                            taskInfo.isUniqueTask = true; // Помечаем как уникальное задание
-                        } else {
-                            // Для повторяющихся заданий также можем указать ID
-                            taskInfo.taskId = selectedTask.id;
-                            
-                            // Проверяем, является ли этот переход одноразовым (все переходы без ключей теперь одноразовые)
-                            const transitionKey = `${roomKey}-${direction}`;
-                            if (this.oneTimeTransitionTasks.includes(transitionKey)) {
-                                taskInfo.isOneTimeTransition = true; // Помечаем как одноразовый переход
-                            }
-                        }
-                    } else {
-                        // Если нет подходящих заданий, можно оставить как есть или установить стандартное
-                        taskInfo.taskId = null;
+                    // Проверяем, является ли этот переход одноразовым (все переходы без ключей теперь одноразовые)
+                    const transitionKey = `${roomKey}-${direction}`;
+                    if (this.oneTimeTransitionTasks.includes(transitionKey)) {
+                        taskInfo.isOneTimeTransition = true; // Помечаем как одноразовый переход
                     }
                 }
+            } else {
+                // Если нет подходящих заданий, можно оставить как есть или установить стандартное
+                taskInfo.taskId = null;
             }
         }
     }
