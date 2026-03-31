@@ -1,0 +1,6 @@
+0000000000000000000000000000000000000000 e28f87fd30ff316eba867bc67da4d12b4e6ef690 Антон Медведев <Medvedev@mshp.ru> 1773928809 +0300	commit (initial): first commit
+e28f87fd30ff316eba867bc67da4d12b4e6ef690 e28f87fd30ff316eba867bc67da4d12b4e6ef690 Антон Медведев <Medvedev@mshp.ru> 1773928817 +0300	Branch: renamed refs/heads/master to refs/heads/main
+e28f87fd30ff316eba867bc67da4d12b4e6ef690 138cfb83b0a1ef2cf412e3e5f411c0acf7c90f8e Антон Медведев <Medvedev@mshp.ru> 1774436272 +0300	commit: prototype with tasks
+138cfb83b0a1ef2cf412e3e5f411c0acf7c90f8e 0bf993a6402ab773a72f4786d68de3dc2233c30e Антон Медведев <Medvedev@mshp.ru> 1774454366 +0300	commit: added timer and increased font size
+0bf993a6402ab773a72f4786d68de3dc2233c30e e12fc84642a9749f9afbc5d73993ce098d01e7a6 Антон Медведев <Medvedev@mshp.ru> 1774609733 +0300	commit: added drawing task and fixed previous ones
+e12fc84642a9749f9afbc5d73993ce098d01e7a6 728068076c252c6becc6db8dda65b421e9ebf9b7 Антон Медведев <Medvedev@mshp.ru> 1774614967 +0300	commit: fixed no success buttons

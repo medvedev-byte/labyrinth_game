@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабиринт</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Начальное окно выбора -->
+        <div id="selection-modal" class="modal selection-modal">
+            <div class="modal-content selection-content">
+                <h2>Выберите параметры игры</h2>
+                
+                <div class="selection-group">
+                    <h3>Формат:</h3>
+                    <div class="selection-buttons">
+                        <button id="in-person-btn" class="selection-btn">Очное отделение</button>
+                        <button id="virtual-class-btn" class="selection-btn">Виртуальный класс</button>
+                    </div>
+                </div>
+                
+                <div class="selection-group">
+                    <h3>Группа:</h3>
+                    <div class="selection-buttons">
+                        <button id="group-j3j4a1p3p5-btn" class="selection-btn">J3, J4, А1, P3, P5, B1</button>
+                        <button id="group-m1-btn" class="selection-btn">M1+</button>
+                    </div>
+                </div>
+                
+                <div class="selection-group">
+                    <h3>Таймер:</h3>
+                    <div class="timer-selection">
+                        <label for="timer-minutes">Минуты:</label>
+                        <input type="number" id="timer-minutes" min="1" max="120" value="40">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- <h1>Игра Лабиринт</h1> -->
+        
+        <!-- Таймер в левом верхнем углу -->
+        <div id="timer-display" class="timer-display" style="display: none;">
+            <h2>Время: <span id="time-left">40:00</span></h2>
+        </div>
+        
+        <!-- Индикатор текущей позиции - теперь основная информация -->
+        <div class="position-indicator-main">
+            <h2><span id="current-position">Комната 1</span></h2>
+        </div>
+        
+        <!-- Контейнер для изображения комнаты и кнопок перемещения -->
+        <div class="controls-container">
+            <div class="room-container">
+                <img src="placeholder_room.jpg" alt="Комната" id="room-image" class="room-image">
+            </div>
+            <!-- Кнопки для перемещения -->
+            <button id="move-up" class="move-button up-btn">↑</button>
+            <button id="move-down" class="move-button down-btn">↓</button>
+            <button id="move-left" class="move-button left-btn">←</button>
+            <button id="move-right" class="move-button right-btn">→</button>
+        </div>
+        
+        <!-- Инвентарь в левом нижнем углу -->
+        <div class="inventory-container corner-inventory">
+            <h3>Инвентарь</h3>
+            <div class="inventory-slots">
+                <div class="inventory-slot" id="slot-0"></div>
+                <div class="inventory-slot" id="slot-1"></div>
+                <div class="inventory-slot" id="slot-2"></div>
+            </div>
+        </div>
+        
+        <!-- Модальное окно для заданий -->
+        <div id="task-modal" class="modal">
+            <div class="modal-content">
+                <h2>Задание</h2>
+                <div id="random-topic-display" class="random-topic-display" style="display: none; margin-bottom: 15px; font-size: 24px; font-weight: bold; color: #2c3e50;"></div>
+                <div id="task-text" class="task-text">Выполните задание в реальной жизни!</div>
+                <div id="arithmetic-chain-interface" class="arithmetic-chain-interface" style="display: none;">
+                    <div id="player-count-input" class="player-count-input">
+                        <label for="player-count">Введите количество игроков:</label>
+                        <input type="number" id="player-count" min="1" value="1">
+                        <button id="start-arithmetic-chain" class="btn-success">Начать</button>
+                    </div>
+                    <div id="arithmetic-chain-display" class="arithmetic-chain-display" style="display: none;">
+                        <div id="operation-display" class="operation-display"></div>
+                        <div id="current-result" class="current-result" style="display: none;"></div>
+                        <button id="next-operation" class="btn-success">Следующая операция</button>
+                        <button id="check-answer" class="btn-success" style="display: none;">Проверить ответ</button>
+                    </div>
+                </div>
+                <div id="random-topic-area" class="random-topic-area">
+                    <div id="random-topic-display" class="random-topic-display" style="display: none; margin-bottom: 15px; font-size: 24px; font-weight: bold; color: #2c3e50;"></div>
+                    <button id="get-random-topic" class="btn-info">Получить случайную тему!</button>
+                </div>
+                <div id="drawing-task-area" class="drawing-task-area" style="display: none;">
+                    <button id="show-drawing-picture" class="btn-info">Показать картинку!</button>
+                    <div id="drawing-fullscreen-overlay" class="fullscreen-overlay" style="display: none;">
+                        <div class="fullscreen-content">
+                            <img id="drawing-fullscreen-image" src="" alt="Картинка для рисования" class="fullscreen-image">
+                            <button id="close-fullscreen" class="btn-fail">Закрыть</button>
+                        </div>
+                    </div>
+            </div>
+            <div class="task-buttons">
+                    <button id="task-success" class="btn-success">Получилось</button>
+                    <button id="task-fail" class="btn-fail">Не получилось</button>
+                </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
